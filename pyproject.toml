@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantumviz"
+version = "0.1.0"
+description = "Quantum algorithm visualization library"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "you@example.com"}
+]
+keywords = ["quantum", "visualization", "bloch-sphere", "quantum-circuit"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+dependencies = [
+    "numpy>=1.20",
+    "matplotlib>=3.5",
+]
+
+[project.optional-dependencies]
+dashboard = ["fastapi>=0.100", "uvicorn>=0.20", "pydantic>=2.0"]
+qiskit = ["qiskit>=1.0", "qiskit-ibm-runtime>=0.20"]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.10",
+    "ruff",
+    "mypy",
+]
+all = ["quantumviz[dashboard,qiskit]"]
+
+[project.scripts]
+quantumviz = "quantumviz.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/quantumviz"
+Repository = "https://github.com/yourusername/quantumviz"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = "True"
+warn_unused_configs = "True"
