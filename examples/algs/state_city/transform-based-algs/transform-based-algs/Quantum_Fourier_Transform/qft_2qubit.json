@@ -1,0 +1,13 @@
+{
+  "qubits": 2,
+  "stages": [
+    {
+      "name": "Initial |01>",
+      "state_vector": [0, 1, 0, 0]
+    },
+    {
+      "name": "After QFT on |01>",
+      "state_vector": ["0.5+0j", "0.5+0.5j", "0.5+1j", "0.5+0.5j"]
+    }
+  ]
+}

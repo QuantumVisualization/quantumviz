@@ -1,0 +1,4 @@
+Extending the Program
+
+One could modify the program to accept multiple qubits and show a Bloch sphere for each qubit at every stage, using a grid of spheres per stage. The input would then need to specify the full multi‑qubit state (or at least the reduced density matrices). However, the current version is intentionally kept simple to focus on the core functionality.
+

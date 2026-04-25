@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Algorithm Visualization Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: white; text-align: center; margin-bottom: 30px; font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .card h2 { color: #333; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 15px; }
+        select, input, button { padding: 12px 18px; border-radius: 8px; border: 2px solid #ddd; font-size: 14px; transition: all 0.3s; }
+        select:hover, input:hover { border-color: #667eea; }
+        button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; border: none; font-weight: 600; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        button.secondary { background: #4CAF50; }
+        button.secondary:hover { background: #45a049; }
+        .visualization-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .viz-container { background: white; border-radius: 10px; padding: 15px; }
+        .info-box { background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #667eea; }
+        .success { background: linear-gradient(135deg, #4CAF5020 0%, #45a04920 100%); border-left-color: #4CAF50; }
+        .error { background: linear-gradient(135deg, #f4433620 0%, #e91e6320 100%); border-left-color: #f44336; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tab { padding: 10px 20px; background: #f0f0f0; border-radius: 8px 8px 0 0; cursor: pointer; }
+        .tab.active { background: #667eea; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .stats { display: flex; gap: 20px; flex-wrap: wrap; }
+        .stat { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 25px; border-radius: 10px; text-align: center; }
+        .stat-value { font-size: 2em; font-weight: bold; }
+        .stat-label { font-size: 0.9em; opacity: 0.9; }
+        .algorithm-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .algo-btn { padding: 20px; text-align: center; background: #f5f5f5; border-radius: 10px; cursor: pointer; transition: all 0.3s; border: 3px solid transparent; }
+        .algo-btn:hover { background: #667eea20; }
+        .algo-btn.selected { border-color: #667eea; background: #667eea20; }
+        .algo-btn .icon { font-size: 2em; margin-bottom: 5px; }
+        footer { text-align: center; color: white; margin-top: 30px; opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Quantum Algorithm Visualization Dashboard</h1>
+        
+        <div class="card">
+            <h2>Select Algorithm</h2>
+            <div class="algorithm-selector">
+                <div class="algo-btn selected" onclick="selectAlgo('grover')">
+                    <div class="icon">🔍</div>
+                    <div>Grover's Search</div>
+                    <div style="font-size:0.8em;color:#666">Oracle-based</div>
+                </div>
+                <div class="algo-btn" onclick="selectAlgo('qft')">
+                    <div class="icon">🌊</div>
+                    <div>QFT</div>
+                    <div style="font-size:0.8em;color:#666">Transform-based</div>
+                </div>
+                <div class="algo-btn" onclick="selectAlgo('qaoa')">
+                    <div class="icon">⚡</div>
+                    <div>QAOA</div>
+                    <div style="font-size:0.8em;color:#666">Variational</div>
+                </div>
+                <div class="algo-btn" onclick="selectAlgo('vqe')">
+                    <div class="icon">⚛️</div>
+                    <div>VQE</div>
+                    <div style="font-size:0.8em;color:#666">Variational</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Configuration</h2>
+            <div class="controls">
+                <label>Qubits: <select id="qubits" onchange="updateVisualization()">
+                    <option value="2">2 Qubits</option>
+                    <option value="3">3 Qubits</option>
+                    <option value="4">4 Qubits</option>
+                </select></label>
+                <label>Stage: <select id="stage" onchange="updateVisualization()">
+                    <option value="all">All Stages</option>
+                    <option value="0">Initial</option>
+                    <option value="1">Stage 1</option>
+                    <option value="2">Stage 2</option>
+                    <option value="3">Stage 3</option>
+                </select></label>
+                <button onclick="animateAlgorithm()">▶ Animate</button>
+                <button class="secondary" onclick="runOnHardware()">🚀 Run on Hardware</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📊 Bloch Sphere</h2>
+            <div id="bloch-viz" style="width:100%;height:500px;"></div>
+        </div>
+        
+        <div class="card">
+            <h2>📈 Probability Distribution</h2>
+            <div id="prob-viz" style="width:100%;height:400px;"></div>
+        </div>
+        
+        <div class="card">
+            <h2>🔲 Density Matrix (Real Part)</h2>
+            <div id="density-viz" style="width:100%;height:400px;"></div>
+        </div>
+        
+        <div class="card">
+            <h2>📋 Algorithm Information</h2>
+            <div class="stats" id="stats"></div>
+            <div class="info-box" id="algo-info"></div>
+        </div>
+        
+        <div class="card" id="hardware-card" style="display:none;">
+            <h2>🔧 Hardware Execution</h2>
+            <div class="controls">
+                <input type="text" id="api-token" placeholder="IBM Quantum API Token (optional)">
+                <select id="backend">
+                    <option value="ibmq_qasm_simulator">QASM Simulator</option>
+                    <option value="ibmq_quito">ibmq_quito (5 qubits)</option>
+                    <option value="ibmq_bogota">ibmq_bogota (5 qubits)</option>
+                </select>
+                <input type="number" id="shots" value="1024" min="100" max="10000">
+                <button onclick="executeHardware()">Execute</button>
+            </div>
+            <div id="hardware-results"></div>
+        </div>
+        
+        <footer>
+            <p>Quantum Algorithm Visualization Dashboard | Built with Plotly.js and Qiskit</p>
+        </footer>
+    </div>
+    
+    <script>
+        let currentAlgorithm = 'grover';
+        let animationInterval = null;
+        
+        const algorithmData = {
+            grover: {
+                name: "Grover's Search",
+                description: "Grover's algorithm provides quadratic speedup for unstructured database search. It uses amplitude amplification to increase the probability of the target state.",
+                stages: {
+                    2: [
+                        {name: "|00⟩ Initial", state: [1, 0, 0, 0]},
+                        {name: "After H (Superposition)", state: [0.5, 0.5, 0.5, 0.5]},
+                        {name: "After Oracle (Mark |11⟩)", state: [0.5, 0.5, 0.5, -0.5]},
+                        {name: "After Diffusion", state: [0, 0, 0, 1]}
+                    ],
+                    3: [
+                        {name: "|000⟩ Initial", state: [1, 0, 0, 0, 0, 0, 0, 0]},
+                        {name: "After H", state: [0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354]},
+                        {name: "After Oracle", state: [0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354, -0.354]},
+                        {name: "After Diffusion", state: [0, 0, 0, 0, 0, 0, 0, 1]}
+                    ]
+                }
+            },
+            qft: {
+                name: "Quantum Fourier Transform",
+                description: "QFT is the quantum analogue of the discrete Fourier transform. It transforms basis states to Fourier basis, revealing periodic patterns in phase.",
+                stages: {
+                    2: [
+                        {name: "|01⟩ Input", state: [0, 1, 0, 0]},
+                        {name: "After QFT", state: [0.5, 0.5, -0.5, -0.5]}
+                    ],
+                    3: [
+                        {name: "|001⟩ Input", state: [0, 0, 1, 0, 0, 0, 0, 0]},
+                        {name: "After QFT", state: [0.354, 0.25+0.25j, 0.354j, -0.25+0.25j, -0.354, -0.25-0.25j, -0.354j, 0.25-0.25j]}
+                    ]
+                }
+            },
+            qaoa: {
+                name: "QAOA",
+                description: "The Quantum Approximate Optimization Algorithm solves combinatorial optimization problems by varying parameters γ and β to minimize a cost function.",
+                stages: {
+                    2: [
+                        {name: "Initial (Uniform)", state: [0.5, 0.5, 0.5, 0.5]},
+                        {name: "γ=0.5, β=0.3", state: [0.4, 0.4, 0.6, 0.6]},
+                        {name: "γ=0.8, β=0.6", state: [0.3, 0.3, 0.7, 0.7]},
+                        {name: "γ=1.0, β=0.8", state: [0.2, 0.2, 0.8, 0.8]}
+                    ],
+                    3: [
+                        {name: "Initial", state: [0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354]},
+                        {name: "p=1", state: [0.3, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6]}
+                    ]
+                }
+            },
+            vqe: {
+                name: "VQE",
+                description: "The Variational Quantum Eigensolver finds ground state energies by minimizing the expectation value of a Hamiltonian through hybrid quantum-classical optimization.",
+                stages: {
+                    2: [
+                        {name: "Initial Ansatz", state: [0.707, 0.707, 0, 0]},
+                        {name: "θ=0.5", state: [0.6, 0.6, 0.3, 0.3]},
+                        {name: "θ=1.0", state: [0.4, 0.4, 0.6, 0.6]},
+                        {name: "θ=1.57 (Optimal)", state: [0.2, 0.2, 0.7, 0.7]}
+                    ],
+                    3: [
+                        {name: "Initial", state: [0.577, 0.577, 0.577, 0, 0.577, 0, 0, 0]},
+                        {name: "θ=1.0", state: [0.4, 0.4, 0.5, 0.3, 0.5, 0.3, 0.4, 0.3]}
+                    ]
+                }
+            }
+        };
+        
+        function selectAlgo(algo) {
+            currentAlgorithm = algo;
+            document.querySelectorAll('.algo-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.closest('.algo-btn').classList.add('selected');
+            updateVisualization();
+        }
+        
+        function updateVisualization() {
+            const qubits = parseInt(document.getElementById('qubits').value);
+            const stageSelect = document.getElementById('stage').value;
+            const data = algorithmData[currentAlgorithm];
+            const stages = data.stages[qubits] || data.stages[2];
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="stat"><div class="stat-value">${qubits}</div><div class="stat-label">Qubits</div></div>
+                <div class="stat"><div class="stat-value">${stages.length}</div><div class="stat-label">Stages</div></div>
+                <div class="stat"><div class="stat-value">${Math.pow(2, qubits)}</div><div class="stat-label">Basis States</div></div>
+            `;
+            
+            document.getElementById('algo-info').innerHTML = `
+                <h3>${data.name}</h3>
+                <p>${data.description}</p>
+            `;
+            
+            if (stageSelect === 'all') {
+                stages.forEach((stage, i) => {
+                    if (i === 0) plotBlochSphere(stage.state, `Stage ${i+1}: ${stage.name}`);
+                    plotProbabilities(stage.state, qubits, `Prob ${i+1}`, i);
+                });
+            } else {
+                const idx = parseInt(stageSelect);
+                const stage = stages[idx];
+                plotBlochSphere(stage.state, stage.name);
+                plotProbabilities(stage.state, qubits, stage.name);
+            }
+        }
+        
+        function plotBlochSphere(state, title = '') {
+            const [alpha, beta] = [complex(state[0]), complex(state[1] || state[0])];
+            const theta = 2 * Math.acos(Math.abs(alpha));
+            const phi = Math.angle(beta) - Math.angle(alpha);
+            const x = Math.sin(theta) * Math.cos(phi);
+            const y = Math.sin(theta) * Math.sin(phi);
+            const z = Math.cos(theta);
+            
+            const u = npLinspace(0, 2 * Math.PI, 30);
+            const v = npLinspace(0, Math.PI, 30);
+            const sphereX = [], sphereY = [], sphereZ = [];
+            for (let i = 0; i < u.length; i++) {
+                sphereX.push([]); sphereY.push([]); sphereZ.push([]);
+                for (let j = 0; j < v.length; j++) {
+                    sphereX[i].push(Math.cos(u[i]) * Math.sin(v[j]));
+                    sphereY[i].push(Math.sin(u[i]) * Math.sin(v[j]));
+                    sphereZ[i].push(Math.cos(v[j]));
+                }
+            }
+            
+            const trace1 = {
+                type: 'surface',
+                x: sphereX, y: sphereY, z: sphereZ,
+                colorscale: [[0, 'rgb(100,200,255)'], [1, 'rgb(100,200,255)']],
+                opacity: 0.3, showscale: false,
+                hoverinfo: 'skip'
+            };
+            
+            const trace2 = {
+                type: 'scatter3d', mode: 'lines+markers',
+                x: [0, x], y: [0, y], z: [0, z],
+                marker: { size: 5, color: 'black' },
+                line: { color: 'black', width: 5 },
+                name: 'State Vector'
+            };
+            
+            const layout = {
+                title: `Bloch Sphere: ${title}`,
+                scene: {
+                    xaxis: { title: 'X', range: [-1.5, 1.5], gridcolor: '#ddd' },
+                    yaxis: { title: 'Y', range: [-1.5, 1.5], gridcolor: '#ddd' },
+                    zaxis: { title: 'Z', range: [-1.5, 1.5], gridcolor: '#ddd' },
+                    aspectmode: 'cube',
+                    bgcolor: 'white'
+                },
+                margin: { l: 0, r: 0, t: 50, b: 0 },
+                showlegend: false,
+                height: 500
+            };
+            
+            Plotly.newPlot('bloch-viz', [trace1, trace2], layout);
+        }
+        
+        function plotProbabilities(state, qubits, title, index = 0) {
+            const dim = Math.pow(2, qubits);
+            let probs = [];
+            for (let i = 0; i < dim; i++) {
+                const amp = complex(state[i] || 0);
+                probs.push(amp.re * amp.re + amp.im * amp.im);
+            }
+            
+            const labels = [];
+            for (let i = 0; i < dim; i++) {
+                let bin = i.toString(2);
+                while (bin.length < qubits) bin = '0' + bin;
+                labels.push('|' + bin + '⟩');
+            }
+            
+            const trace = {
+                type: 'bar',
+                x: labels,
+                y: probs,
+                marker: { 
+                    color: probs.map(p => p > 0.5 ? '#4CAF50' : p > 0.1 ? '#FFC107' : '#667eea'),
+                    line: { color: '#333', width: 1 }
+                },
+                text: probs.map(p => p.toFixed(3)),
+                textposition: 'auto'
+            };
+            
+            const layout = {
+                title: `Probabilities: ${title}`,
+                xaxis: { title: 'Basis State', tickangle: -45 },
+                yaxis: { title: 'Probability', range: [0, 1.1] },
+                height: 350,
+                margin: { l: 50, r: 20, t: 50, b: 100 }
+            };
+            
+            Plotly.newPlot('prob-viz', [trace], layout);
+        }
+        
+        function complex(val) {
+            if (typeof val === 'number') return { re: val, im: 0 };
+            if (typeof val === 'string') {
+                val = val.replace(/\s/g, '');
+                if (val.includes('+') || val.includes('-')) {
+                    const [re, im] = val.split(/([+-])/);
+                    return { 
+                        re: parseFloat(re) || 0, 
+                        im: parseFloat(im + (val.match(/[+-]\d*\.?\d*j?$/)?.[0]?.replace('j','') || '0')) || 0 
+                    };
+                }
+                if (val.includes('j')) return { re: 0, im: parseFloat(val) || 1 };
+                return { re: parseFloat(val), im: 0 };
+            }
+            if (val && typeof val === 'object' && val.im !== undefined) return val;
+            return { re: 0, im: 0 };
+        }
+        
+        function npLinspace(start, end, num) {
+            const arr = [];
+            for (let i = 0; i < num; i++) {
+                arr.push(start + (end - start) * i / (num - 1));
+            }
+            return arr;
+        }
+        
+        function animateAlgorithm() {
+            const qubits = parseInt(document.getElementById('qubits').value);
+            const stages = algorithmData[currentAlgorithm].stages[qubits];
+            let current = 0;
+            
+            if (animationInterval) clearInterval(animationInterval);
+            
+            animationInterval = setInterval(() => {
+                const stage = stages[current];
+                plotBlochSphere(stage.state, stage.name);
+                plotProbabilities(stage.state, qubits, stage.name);
+                current = (current + 1) % stages.length;
+            }, 1500);
+        }
+        
+        function runOnHardware() {
+            document.getElementById('hardware-card').style.display = 'block';
+        }
+        
+        function executeHardware() {
+            const results = document.getElementById('hardware-results');
+            results.innerHTML = '<div class="info-box">Connecting to Qiskit runtime...</div>';
+            
+            results.innerHTML += `
+                <div class="info-box">
+                    <p><strong>Note:</strong> To run on real hardware:</p>
+                    <ol>
+                        <li>Get an IBM Quantum API token from <a href="https://quantum-computing.ibm.com" target="_blank">quantum-computing.ibm.com</a></li>
+                        <li>Enter your token in the input field above</li>
+                        <li>Select a backend and number of shots</li>
+                    </ol>
+                    <p>Alternatively, run the backend server with Qiskit installed:</p>
+                    <pre>cd dashboard/api && pip install -r requirements.txt && python main.py</pre>
+                </div>
+            `;
+        }
+        
+        Math.angle = function(c) {
+            return Math.atan2(c.im || 0, c.re || 0);
+        };
+        
+        updateVisualization();
+    </script>
+</body>
+</html>

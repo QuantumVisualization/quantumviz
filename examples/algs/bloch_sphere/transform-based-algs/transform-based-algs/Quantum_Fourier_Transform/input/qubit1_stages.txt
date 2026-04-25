@@ -1,0 +1,6 @@
+# Qubit 1 evolution during 2‑qubit QFT on |01>
+|0>
+|+>
+theta=90 deg, phi=90 deg   # this is |+i> (θ=π/2, φ=π/2)
+theta=90 deg, phi=90 deg   # stage 4 same as stage 3
+|->

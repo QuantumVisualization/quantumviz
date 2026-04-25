@@ -1,0 +1,6 @@
+# Qubit 2 evolution during 2‑qubit QFT on |01>
+|1>
+|1>
+|1>
+|->
+theta=90 deg, phi=90 deg   # final state |+i>

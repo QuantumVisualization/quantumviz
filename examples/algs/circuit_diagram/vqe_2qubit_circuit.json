@@ -1,0 +1,13 @@
+{
+  "name": "VQE Ansatz Circuit (2 qubits)",
+  "qubits": 2,
+  "gates": [
+    {"type": "H", "qubit": 0},
+    {"type": "H", "qubit": 1},
+    {"type": "RY", "qubit": 0, "theta": 1.57},
+    {"type": "RY", "qubit": 1, "theta": 1.57},
+    {"type": "CNOT", "control": 0, "target": 1},
+    {"type": "RZ", "qubit": 0, "theta": 1.0},
+    {"type": "RY", "qubit": 1, "theta": 0.5}
+  ]
+}

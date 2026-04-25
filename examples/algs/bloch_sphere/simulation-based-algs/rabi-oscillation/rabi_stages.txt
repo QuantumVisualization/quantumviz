@@ -1,0 +1,10 @@
+{
+  "qubits": 1,
+  "stages": [
+    "|0>",
+    "theta=45 deg, phi=0",
+    "theta=90 deg, phi=0",
+    "theta=135 deg, phi=0",
+    "theta=180 deg, phi=0"
+  ]
+}

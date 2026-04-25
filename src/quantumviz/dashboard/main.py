@@ -16,7 +16,7 @@ import os
 from datetime import datetime
 
 
-app = FastAPI(title="Quantum Viz Dashboard", version="0.1.0")
+app = FastAPI(title="Quantum Viz Dashboard", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,6 +33,11 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 class StateVectorInput(BaseModel):
     qubits: int = Field(ge=1, le=10, description="Number of qubits")
     stages: List[Dict[str, Any]] = Field(description="Algorithm stages with state vectors")
+
+
+class BlochSphereInput(BaseModel):
+    states: List[Dict[str, Any]] = Field(description="List of quantum states")
+    algorithm: str = Field(description="Algorithm name")
 
 
 class CircuitInput(BaseModel):
@@ -183,6 +188,8 @@ async def root():
                 <input type="text" id="api-token" placeholder="Enter IBM Quantum API Token (optional)" style="width: 300px;">
                 <select id="backend">
                     <option value="ibmq_qasm_simulator">QASM Simulator</option>
+                    <option value="ibmq_quito">ibmq_quito (5 qubits)</option>
+                    <option value="ibmq_bogota">ibmq_bogota (5 qubits)</option>
                 </select>
                 <input type="number" id="shots" value="1024" min="100" max="100000">
                 <button onclick="runOnHardware()">Run on Hardware</button>
@@ -400,7 +407,7 @@ async def list_backends():
 @app.get("/api/health")
 async def health():
     """Health check endpoint."""
-    return {"status": "healthy", "version": "0.1.0"}
+    return {"status": "healthy", "version": "0.2.0"}
 
 
 if __name__ == "__main__":

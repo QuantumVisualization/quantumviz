@@ -1,0 +1,21 @@
+{
+  "qubits": 3,
+  "stages": [
+    {
+      "name": "Initial |000>",
+      "state_vector": [1, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      "name": "After H on all",
+      "state_vector": [0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354]
+    },
+    {
+      "name": "After Oracle (mark |111>)",
+      "state_vector": [0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354, "-0.354"]
+    },
+    {
+      "name": "After Diffusion",
+      "state_vector": [0, 0, 0, 0, 0, 0, 0, 1]
+    }
+  ]
+}

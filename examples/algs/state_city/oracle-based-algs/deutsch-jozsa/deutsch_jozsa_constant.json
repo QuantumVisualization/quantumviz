@@ -1,0 +1,21 @@
+{
+  "qubits": 2,
+  "stages": [
+    {
+      "name": "Initial |00>",
+      "state_vector": [1, 0, 0, 0]
+    },
+    {
+      "name": "After H on both",
+      "state_vector": [0.5, 0.5, 0.5, 0.5]
+    },
+    {
+      "name": "After constant oracle",
+      "state_vector": [0.5, 0.5, 0.5, 0.5]
+    },
+    {
+      "name": "After final H",
+      "state_vector": [1, 0, 0, 0]
+    }
+  ]
+}

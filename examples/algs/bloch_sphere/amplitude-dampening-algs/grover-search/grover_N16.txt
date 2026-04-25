@@ -1,0 +1,16 @@
+# Grover search for N=16 (theta_g = arcsin(1/4) ≈ 14.4775°)
+# Stage 0: initial uniform superposition
+theta=28.955 deg, phi=0 deg
+
+# Stage 1: after 1 iteration
+theta=86.865 deg, phi=0 deg
+
+# Stage 2: after 2 iterations
+theta=144.775 deg, phi=0 deg   # Note: 144.775° < 180°, so still φ=0
+
+# Stage 3: after 3 iterations
+# theta=202.685 deg, phi=0 deg   # This exceeds 180°; the parser will handle it?
+# Important: The program expects θ in the range [0,π] (0 to 180°). Values above 180° should be converted as described. For stage 3, (2k+1)θg=7×14.4775°=101.3425° (since k=3 gives 7θ_g). This is >90°, so we use the second formula:
+# θ=360°−2×101.3425°=360°−202.685°=157.315°, and ϕ=π (180°). Similarly, for stage 2: 5θg=72.3875° (still ≤90°), so θ=144.775°, ϕ=0.
+
+theta=157.315 deg, phi=180 deg

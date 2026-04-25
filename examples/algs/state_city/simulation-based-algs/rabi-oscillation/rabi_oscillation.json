@@ -1,0 +1,18 @@
+{
+  "name": "Rabi Oscillation (Simulation-based)",
+  "qubits": 1,
+  "trajectory": [
+    [1.0, 0.0],
+    [0.707, 0.707],
+    [0.0, 1.0],
+    ["-0.707+0j", "0.707+0j"],
+    ["-1.0+0j", "0+0j"]
+  ],
+  "stages": [
+    {"name": "t=0: |0>", "state_vector": [1, 0]},
+    {"name": "t=π/4: |+>", "state_vector": [0.707, 0.707]},
+    {"name": "t=π/2: |1>", "state_vector": [0, 1]},
+    {"name": "t=3π/4: |->", "state_vector": ["-0.707+0j", 0.707]},
+    {"name": "t=π: -|0>", "state_vector": [-1, 0]}
+  ]
+}
