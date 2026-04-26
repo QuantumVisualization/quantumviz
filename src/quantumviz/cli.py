@@ -5,19 +5,25 @@ Provides unified command-line interface for all visualization tools.
 """
 
 import sys
+
 import click
 
 from quantumviz.bloch_sphere import plot_bloch_sphere as _plot_bloch_sphere
-from quantumviz.state_city import plot_state_cities_from_file as _plot_state_cities
+from quantumviz.circuit_diagram import plot_circuit as _draw_circuit
 from quantumviz.cost_landscape import (
-    plot_qaoa_landscape as _plot_qaoa,
-    plot_vqe_landscape as _plot_vqe,
+    get_examples_dir,
     validate_qaoa_input,
     validate_vqe_input,
-    get_examples_dir,
 )
-from quantumviz.circuit_diagram import plot_circuit as _draw_circuit
+from quantumviz.cost_landscape import (
+    plot_qaoa_landscape as _plot_qaoa,
+)
+from quantumviz.cost_landscape import (
+    plot_vqe_landscape as _plot_vqe,
+)
 from quantumviz.dynamic_flow import plot_dynamic_flow as _plot_dynamic_flow
+from quantumviz.state_city import plot_state_cities_from_file as _plot_state_cities
+from quantumviz.dcn import plot_dcns_from_file as _plot_dcn
 
 
 @click.group()
@@ -131,17 +137,45 @@ def dynamic_flow(input_file, output_file, dpi):
 
 
 @main.command()
+@click.argument("input_file", type=click.Path(exists=True))
+@click.option("-o", "--output", "output_file", help="Output file or directory path")
+@click.option("--dpi", default=150, help="DPI for saved figure")
+def dcn(input_file, output_file, dpi):
+    """Plot Dimensional Circular Notation (DCN) from JSON input file."""
+    if output_file is None:
+        # Determine output based on input
+        if input_file.endswith('.json'):
+            output_file = input_file.replace('.json', '_dcn.png')
+        else:
+            output_file = input_file + '_dcn.png'
+
+    # Check if input is a directory (for multiple stages) or single file
+    import os
+    if os.path.isdir(input_file):
+        _plot_dcn(input_file, output_file, dpi)
+    else:
+        # Single stage - determine if output is file or directory
+        if output_file and not output_file.endswith('/'):
+            # Assume it's a directory if ends with /
+            _plot_dcn(input_file, output_file + '/', dpi)
+        else:
+            _plot_dcn(input_file, output_file, dpi)
+    click.echo(f"Saved: {output_file}")
+
+
+@main.command()
 @click.option("--host", default="0.0.0.0", help="Host to bind to")
 @click.option("-p", "--port", default=8000, help="Port to bind to")
 def serve(host, port):
     """Start the quantumviz dashboard web server."""
     try:
-        from quantumviz.dashboard.main import app
         import uvicorn
+
+        from quantumviz.dashboard.main import app
         click.echo(f"Starting dashboard at http://{host}:{port}")
         uvicorn.run(app, host=host, port=port)
-    except ImportError as e:
-        click.echo(f"Error: Dashboard dependencies not installed.", err=True)
+    except ImportError:
+        click.echo("Error: Dashboard dependencies not installed.", err=True)
         click.echo("Install with: pip install quantumviz[dashboard]", err=True)
         sys.exit(1)
 

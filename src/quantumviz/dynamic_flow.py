@@ -5,13 +5,14 @@ Provides functions for visualizing time evolution of quantum states,
 including Rabi oscillations and trajectory visualizations on the Bloch sphere.
 """
 
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import json
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
+import matplotlib.pyplot as plt
 
 
 def parse_complex(val):

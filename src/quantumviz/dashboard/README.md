@@ -90,10 +90,45 @@ Install: `pip install quantumviz[dashboard]`
 ## Project Structure
 
 ```
-dashboard/
+quantumviz/src/quantumviz/dashboard/
 ├── main.py           # FastAPI backend
 ├── requirements.txt  # Python dependencies
 ├── frontend/
 │   └── index.html   # Standalone web interface
 └── results/         # Hardware execution results
 ```
+
+## Requirements
+
+- Python 3.9+
+- fastapi, uvicorn, pydantic
+- numpy, plotly
+- Optional: qiskit, qiskit-ibm-runtime (for hardware)
+
+Install: `pip install quantumviz[dashboard]`
+
+## Algorithm Details
+
+### Grover's Search
+- Oracle-based algorithm for database search
+- Shows amplitude amplification across stages
+- Bloch Sphere shows rotation toward target state
+
+### Quantum Fourier Transform (QFT)
+- Transform-based algorithm for frequency analysis
+- Phase periodicity visible in density matrix
+- State City reveals periodic phase patterns
+
+### QAOA (Quantum Approximate Optimization)
+- Variational algorithm for combinatorial optimization
+- Parameter evolution visible across stages
+- Cost landscape shows optimization surface
+
+### VQE (Variational Quantum Eigensolver)
+- Finds ground state energies
+- Parameter optimization visible
+- Energy landscape shows minimization
+
+## License
+
+MIT License

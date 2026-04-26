@@ -7,12 +7,15 @@ for QAOA (Quantum Approximate Optimization Algorithm) and VQE
 """
 
 import os
-import numpy as np
+
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from typing import Optional, Tuple, List, Dict, Any
 import json
+from typing import Any, Dict, List, Optional, Tuple
+
+import matplotlib.pyplot as plt
 
 VALID_PAULIS = {"I", "X", "Y", "Z"}
 

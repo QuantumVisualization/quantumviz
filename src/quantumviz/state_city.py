@@ -5,13 +5,14 @@ Provides functions for visualizing multi-qubit density matrices
 as 3D bar charts (state city plots).
 """
 
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import json
-from typing import Union, List, Dict, Any, Optional
+from typing import Any, List, Optional
+
+import matplotlib.pyplot as plt
 
 
 def parse_amplitude(amp: Any) -> complex:
@@ -93,6 +94,9 @@ def plot_state_city(
     real_vals = np.real(rho).flatten()
     imag_vals = np.imag(rho).flatten()
 
+    max_abs = max(abs(real_vals.max()), abs(imag_vals.max()), 0.1)
+    z_min, z_max = -max_abs, max_abs
+
     real_colors = ['red' if v >= 0 else 'blue' for v in real_vals]
     imag_colors = ['red' if v >= 0 else 'blue' for v in imag_vals]
 
@@ -107,6 +111,7 @@ def plot_state_city(
     ax1.set_zlabel('Amplitude')
     ax1.set_xticks(range(dim))
     ax1.set_yticks(range(dim))
+    ax1.set_zlim(z_min, z_max)
 
     ax2 = fig.add_subplot(122, projection='3d')
     ax2.bar3d(xpos, ypos, zpos, dx, dy, imag_vals, color=imag_colors, alpha=0.8)
@@ -116,6 +121,7 @@ def plot_state_city(
     ax2.set_zlabel('Amplitude')
     ax2.set_xticks(range(dim))
     ax2.set_yticks(range(dim))
+    ax2.set_zlim(z_min, z_max)
 
     plt.tight_layout()
 

@@ -2,21 +2,23 @@
 Comprehensive tests for the State City visualization module.
 """
 
-import pytest
+import matplotlib
 import numpy as np
 import numpy.testing as npt
-import matplotlib
+import pytest
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import json
-import tempfile
 import os
+import tempfile
+
+import matplotlib.pyplot as plt
 
 from quantumviz.state_city import (
     parse_amplitude,
-    state_to_density,
-    plot_state_city,
     plot_state_cities_from_file,
+    plot_state_city,
+    state_to_density,
 )
 
 

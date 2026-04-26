@@ -2,20 +2,22 @@
 Comprehensive tests for the Cost Landscape visualization module.
 """
 
-import pytest
+import matplotlib
 import numpy as np
 import numpy.testing as npt
-import matplotlib
+import pytest
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import tempfile
 import os
+import tempfile
+
+import matplotlib.pyplot as plt
 
 from quantumviz.cost_landscape import (
-    qaoa_cost,
-    vqe_energy,
     plot_qaoa_landscape,
     plot_vqe_landscape,
+    qaoa_cost,
+    vqe_energy,
 )
 
 SIMPLE_GRAPH_EDGES = [(0, 1)]

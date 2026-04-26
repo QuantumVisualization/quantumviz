@@ -6,13 +6,14 @@ as PNG images.
 """
 
 import json
-import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from typing import Dict, List, Any, Optional
 
+import matplotlib
+
+matplotlib.use('Agg')
+from typing import Any, Dict, List, Optional
+
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 
 GATE_COLORS = {
     'H': '#FF6B6B',

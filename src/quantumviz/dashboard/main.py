@@ -5,16 +5,16 @@ This module provides a web-based dashboard for visualizing quantum algorithm
 states and running circuits on quantum hardware.
 """
 
+import json
+import os
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-import numpy as np
-import json
-import os
-from datetime import datetime
-
 
 app = FastAPI(title="Quantum Viz Dashboard", version="0.2.0")
 

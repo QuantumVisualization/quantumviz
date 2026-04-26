@@ -2,23 +2,26 @@
 Comprehensive tests for the Circuit Diagram visualization module.
 """
 
-import pytest
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import json
-import tempfile
 import os
+import tempfile
+
+import matplotlib.pyplot as plt
 
 from quantumviz.circuit_diagram import (
     GATE_COLORS,
-    draw_qubit_line,
-    draw_single_gate,
     draw_cnot,
     draw_controlled_gate,
     draw_measure,
+    draw_qubit_line,
+    draw_single_gate,
     parse_circuit,
+)
+from quantumviz.circuit_diagram import (
     plot_circuit as draw_circuit,
 )
 

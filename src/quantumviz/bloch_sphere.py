@@ -5,13 +5,14 @@ Provides functions for visualizing single-qubit quantum states on the
 Bloch sphere, including parsing various input formats.
 """
 
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import re
-from typing import Union, List, Optional
+from typing import List, Optional, Union
+
+import matplotlib.pyplot as plt
 
 
 def parse_ket(s: str) -> np.ndarray:

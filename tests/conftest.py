@@ -2,10 +2,12 @@
 Pytest configuration and shared fixtures for quantumviz tests.
 """
 
-import pytest
 import sys
 from pathlib import Path
+
 import matplotlib
+import pytest
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 

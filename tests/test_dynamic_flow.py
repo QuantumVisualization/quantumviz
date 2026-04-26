@@ -2,24 +2,25 @@
 Comprehensive tests for the Dynamic Flow visualization module.
 """
 
-import pytest
+import matplotlib
 import numpy as np
 import numpy.testing as npt
-import matplotlib
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import json
-import tempfile
 import os
+import tempfile
+
+import matplotlib.pyplot as plt
 
 from quantumviz.dynamic_flow import (
-    parse_complex,
     bloch_vector,
     draw_bloch_sphere,
+    parse_complex,
+    plot_density_evolution,
+    plot_dynamic_flow,
     plot_rabi_oscillation,
     plot_time_evolution,
-    plot_dynamic_flow,
-    plot_density_evolution,
 )
 
 

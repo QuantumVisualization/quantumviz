@@ -2,23 +2,24 @@
 Comprehensive tests for the Bloch sphere visualization module.
 """
 
-import pytest
+import matplotlib
 import numpy as np
 import numpy.testing as npt
-import matplotlib
+import pytest
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from pathlib import Path
-import tempfile
 import os
+import tempfile
+
+import matplotlib.pyplot as plt
 
 from quantumviz.bloch_sphere import (
-    parse_ket,
-    parse_bloch_vector,
-    parse_angles,
-    parse_complex_pair,
-    parse_stage,
     draw_bloch_sphere,
+    parse_angles,
+    parse_bloch_vector,
+    parse_complex_pair,
+    parse_ket,
+    parse_stage,
     plot_bloch_sphere,
 )
 
