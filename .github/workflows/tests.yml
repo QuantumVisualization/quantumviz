@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pytest pytest-cov pytest-mock click
-          pip install -e .
+          pip install -e ".[dashboard]"
 
       - name: Run tests
         run: pytest tests/ --cov=quantumviz --cov-report=xml
