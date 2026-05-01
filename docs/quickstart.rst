@@ -22,6 +22,9 @@ Then visualize:
 
    quantumviz bloch-sphere input.txt -o bloch.png
 
+   # PDF output
+   quantumviz bloch-sphere input.txt -o bloch.pdf -f pdf
+
 State City
 ^^^^^^^^^^
 
@@ -43,8 +46,11 @@ Visualize:
 
    quantumviz state-city input.json -o output/
 
+   # PDF output for multiple files
+   quantumviz state-city input.json -o output/ -f pdf
+
 Circuit Diagram
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^
 
 .. code-block:: json
 
@@ -62,13 +68,19 @@ Render:
 
    quantumviz circuit circuit.json -o circuit.png
 
+   # PDF output
+   quantumviz circuit circuit.json -o circuit.pdf -f pdf
+
 Cost Landscape
-^^^^^^^^^^^^^
+^^^^^^^^^^^
 
 .. code-block:: bash
 
    quantumviz cost-landscape qaoa -o qaoa.png
    quantumviz cost-landscape vqe -o vqe.png
+
+   # PDF output
+   quantumviz cost-landscape qaoa -o qaoa.pdf -f pdf
 
 Dashboard
 ^^^^^^^^^
@@ -86,11 +98,17 @@ Python API
 
    from quantumviz import plot_bloch_sphere, plot_state_city, state_to_density
 
-   # Plot Bloch sphere
+   # Plot Bloch sphere (PNG)
    plot_bloch_sphere("input.txt", "output.png")
+
+   # Plot Bloch sphere (PDF)
+   plot_bloch_sphere("input.txt", "output.pdf")
 
    # Create density matrix
    rho = state_to_density([1/np.sqrt(2), 1/np.sqrt(2)])
 
-   # Plot state city
+   # Plot state city (PNG)
    plot_state_city([1, 0, 0, 0], "Density Matrix", "output.png")
+
+   # Plot state city (PDF)
+   plot_state_city([1, 0, 0, 0], "Density Matrix", "output.pdf")

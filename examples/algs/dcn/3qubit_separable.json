@@ -1,0 +1,9 @@
+{
+  "qubits": 3,
+  "stages": [
+    {
+      "name": "Separable State |0+0⟩",
+      "state_vector": [0.707, 0.707, 0, 0, 0, 0, 0, 0]
+    }
+  ]
+}

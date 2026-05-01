@@ -10,12 +10,15 @@ Welcome to quantumviz's documentation!
    api
 
 Quick Start
------------
+---------
 
 .. code-block:: bash
 
    pip install quantumviz
    quantumviz bloch-sphere input.txt -o output.png
+
+   # PDF output
+   quantumviz bloch-sphere input.txt -o output.pdf -f pdf
 
 Features
 --------

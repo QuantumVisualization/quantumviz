@@ -25,6 +25,13 @@ from quantumviz.cost_landscape import (
     qaoa_cost,
     vqe_energy,
 )
+from quantumviz.dcn import (
+    parse_amplitude as dcn_parse_amplitude,
+)
+from quantumviz.dcn import (
+    plot_dcn,
+    plot_dcns_from_file,
+)
 from quantumviz.dynamic_flow import (
     plot_dynamic_flow,
     plot_rabi_oscillation,
@@ -34,11 +41,6 @@ from quantumviz.state_city import (
     parse_amplitude,
     plot_state_city,
     state_to_density,
-)
-from quantumviz.dcn import (
-    parse_amplitude as dcn_parse_amplitude,
-    plot_dcn,
-    plot_dcns_from_file,
 )
 
 __all__ = [

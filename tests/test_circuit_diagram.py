@@ -250,6 +250,19 @@ class TestDrawCircuit:
             draw_circuit(data, output_path)
             assert os.path.exists(output_path)
 
+    def test_draw_circuit_saves_to_pdf(self):
+        """Test circuit saves to PDF file."""
+        data = {
+            "qubits": 1,
+            "gates": [{"type": "H", "qubit": 0}]
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "circuit.pdf")
+            draw_circuit(data, output_path)
+            assert os.path.exists(output_path)
+            with open(output_path, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
     def test_draw_circuit_single_qubit(self):
         """Test drawing single qubit circuit."""
         data = {

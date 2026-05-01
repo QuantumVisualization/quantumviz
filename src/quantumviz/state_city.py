@@ -5,11 +5,13 @@ Provides functions for visualizing multi-qubit density matrices
 as 3D bar charts (state city plots).
 """
 
+import json
+import os
+
 import matplotlib
 import numpy as np
 
 matplotlib.use('Agg')
-import json
 from typing import Any, List, Optional
 
 import matplotlib.pyplot as plt
@@ -135,7 +137,8 @@ def plot_state_city(
 def plot_state_cities_from_file(
     input_file: str,
     output_dir: Optional[str] = None,
-    dpi: int = 150
+    dpi: int = 150,
+    fmt: str = "png"
 ) -> List[str]:
     """
     Plot multiple stages from a JSON input file.
@@ -144,6 +147,7 @@ def plot_state_cities_from_file(
         input_file: Path to JSON file with stages
         output_dir: Directory to save output files (if None, uses current dir)
         dpi: Resolution for saved figures
+        fmt: Output format (png, pdf, svg)
 
     Returns:
         List of output filenames
@@ -157,6 +161,10 @@ def plot_state_cities_from_file(
 
     output_files = []
 
+    # Create output directory if it doesn't exist
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     for i, stage in enumerate(stages):
         name = stage.get('name', f'Stage {i+1}')
         raw_state = stage['state_vector']
@@ -167,9 +175,9 @@ def plot_state_cities_from_file(
                            f"does not match 2^{n_qubits}={dim}")
 
         if output_dir:
-            filename = f"{output_dir}/stage_{i+1:02d}_{name.replace(' ', '_')}.png"
+            filename = f"{output_dir}/stage_{i+1:02d}_{name.replace(' ', '_')}.{fmt}"
         else:
-            filename = f"stage_{i+1:02d}_{name.replace(' ', '_')}.png"
+            filename = f"stage_{i+1:02d}_{name.replace(' ', '_')}.{fmt}"
 
         plot_state_city(state_vector, name, filename, dpi)
         output_files.append(filename)

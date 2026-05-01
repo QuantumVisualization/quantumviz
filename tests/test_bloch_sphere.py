@@ -327,6 +327,17 @@ class TestPlotBlochSphere:
             plot_bloch_sphere(states, output_path)
             assert os.path.exists(output_path)
 
+    def test_plot_saves_to_pdf(self):
+        """Test plotting saves to PDF file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test.pdf")
+            states = ["|0>", "|1>"]
+            plot_bloch_sphere(states, output_path)
+            assert os.path.exists(output_path)
+            # Verify it's actually a PDF
+            with open(output_path, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
     def test_plot_no_valid_stages(self):
         """Test plotting with no valid stages raises error."""
         with pytest.raises(ValueError, match="No valid stages found"):

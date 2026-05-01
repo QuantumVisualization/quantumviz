@@ -174,6 +174,15 @@ class TestPlotRabiOscillation:
             plot_rabi_oscillation(output_path=output_path)
             assert os.path.exists(output_path)
 
+    def test_plot_saves_to_pdf(self):
+        """Test plotting saves to PDF file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "rabi.pdf")
+            plot_rabi_oscillation(output_path=output_path)
+            assert os.path.exists(output_path)
+            with open(output_path, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
 
 class TestPlotTimeEvolution:
     """Tests for plot_time_evolution function."""

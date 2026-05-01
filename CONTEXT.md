@@ -2,7 +2,7 @@
 
 ## What This Project Is
 
-quantumviz is a Python library for visualizing quantum algorithm states. It renders quantum states as images (PNG) for education, analysis, and publication.
+quantumviz is a Python library for visualizing quantum algorithm states. It renders quantum states as images (PNG, PDF, SVG) for education, analysis, and publication.
 
 ## Visualization Types
 
@@ -52,6 +52,7 @@ quantumviz is a Python library for visualizing quantum algorithm states. It rend
 - **Representation**: Circuit diagram (like Qiskit circuit drawer)
 - **Shows**: Gates, wires, measurements
 - **Input**: JSON with qubits + stages (gates)
+- **Output**: PNG, PDF, or SVG
 - **Extension**: Can overlay state evolution
 
 ### 5. Dynamic Flow

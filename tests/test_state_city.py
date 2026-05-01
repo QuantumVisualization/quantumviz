@@ -227,6 +227,16 @@ class TestPlotStateCity:
             plot_state_city(state, "Test", output_path)
             assert os.path.exists(output_path)
 
+    def test_plot_saves_to_pdf(self):
+        """Test plotting saves to PDF file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test.pdf")
+            state = [1, 0, 0, 0]
+            plot_state_city(state, "Test", output_path)
+            assert os.path.exists(output_path)
+            with open(output_path, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
     def test_plot_custom_dpi(self):
         """Test plotting with custom DPI."""
         with tempfile.TemporaryDirectory() as tmpdir:

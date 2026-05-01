@@ -1,82 +1,55 @@
-# AGENTS.md - quantumviz Developer Guide
+# AGENTS.md - quantumviz
 
-## Quick Commands
+## Commands
 
 ```bash
 # Test
-pytest                    # All tests
-pytest tests/test_xxx.py  # Single file
-pytest -k "pattern"      # Match pattern
-pytest --cov=src         # With coverage
+pytest tests/ --cov=quantumviz  # All tests with coverage
+pytest tests/test_dcn.py -v    # Single file (verbose default)
+pytest -k "pattern"            # Match pattern
 
-# Lint & Typecheck
-ruff check src/
-ruff check --fix src/
-mypy src/
+# Lint & Typecheck  
+ruff check src/                # Ruff config in pyproject.toml
+mypy src/                      # Python 3.9 target
 
 # Install
-pip install -e ".[dev]"      # Dev deps
-pip install -e ".[dashboard]"  # With dashboard
-pip install -e ".[all]"      # Everything
+pip install -e ".[dev]"        # Dev deps (pytest, ruff, mypy)
+pip install -e ".[dashboard]"   # + FastAPI, uvicorn, pydantic
+pip install -e ".[all]"        # + qiskit, qiskit-ibm-runtime
 ```
 
-## CLI Commands
+## CLI
 
 ```bash
-quantumviz bloch-sphere input.txt -o output.png
-quantumviz state-city input.json -o output/
-quantumviz circuit input.json -o circuit.png
-quantumviz cost-landscape qaoa graph.json -o landscape.png
-quantumviz cost-landscape vqe hamiltonian.json -o energy.png
-quantumviz serve                 # Dashboard at localhost:8000
+quantumviz bloch-sphere input.txt -o out.png
+quantumviz bloch-sphere input.txt -o out.pdf -f pdf    # PDF output
+quantumviz state-city input.json -o out/ -f pdf          # PDF for multiple files
+quantumviz circuit input.json -o out.png
+quantumviz cost-landscape qaoa|vqe input.json -o out.png
+quantumviz dynamic-flow input.json -o out.png
+quantumviz dcn input.json -o out.pdf -f pdf          # PDF output
+quantumviz serve                                    # Dashboard at localhost:8000
 ```
 
-## Dashboard
+### Output Format Options
+- `-f, --format`: Output format (png, pdf, svg) - defaults to `png`
+- Output path extension is ignored in favor of the `--format` option
 
-FastAPI web interface for quantum state visualization.
+## Conventions
 
-```bash
-# Via CLI
-quantumviz serve
+- **Basis ordering**: Big-endian |q₁q₀⟩ (q₁ = MSB)
+- **Complex amplitudes**: `j` suffix (`0.707+0.707j`)
+- **State vectors**: Must be normalized, length must be power of 2
+- **Matplotlib**: Call `matplotlib.use('Agg')` before importing pyplot; call `plt.close()` after saving
 
-# Direct execution
-python -m quantumviz.dashboard.main
+## Structure
 
-# Standalone frontend
-cd src/quantumviz/dashboard/frontend
-python -m http.server 8080
-```
-
-Dashboard structure:
-```
-src/quantumviz/dashboard/
-├── main.py          # FastAPI backend
-├── frontend/
-│   └── index.html   # Standalone frontend
-├── requirements.txt  # Dashboard dependencies
-├── README.md         # Dashboard docs
-└── results/         # Hardware execution results
-```
-
-## Important Conventions
-
-- **Basis ordering**: Big-endian |q₁q₀⟩ where q₁ is MSB
-- **Complex amplitudes**: Use `j` suffix (Python convention)
-- **State vectors**: Must be normalized
-
-## Matplotlib Requirements
-
-- Always call `matplotlib.use('Agg')` before importing pyplot
-- Always call `plt.close()` after saving figures
-
-## Project Structure
-
-- Input modules in `src/quantumviz/`
-- Tests in `tests/test_*.py` (one per module)
-- Examples in `examples/`
-- Dashboard in `src/quantumviz/dashboard/`
+- `src/quantumviz/` - Visualization modules (one per type)
+- `tests/test_*.py` - One test file per module
+- `examples/` - Input files organized by algorithm
+- `src/quantumviz/dashboard/` - FastAPI web interface
 
 ## References
 
-- Input format details: `CONTEXT.md`
-- pyproject.toml has exact ruff/mypy config
+- Input formats: `CONTEXT.md`
+- Ruff/mypy config: `pyproject.toml`

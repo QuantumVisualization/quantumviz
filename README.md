@@ -1,6 +1,6 @@
 # quantumviz - Quantum Algorithm Visualization Library
 
-A Python library for visualizing quantum algorithm states including Bloch spheres, density matrices, cost landscapes, circuit diagrams, and dynamic time evolution.
+A Python library for visualizing quantum algorithm states including Bloch spheres, density matrices, cost landscapes, circuit diagrams, dynamic time evolution, and dimensional circular notation (DCN).
 
 ## Features
 
@@ -9,6 +9,7 @@ A Python library for visualizing quantum algorithm states including Bloch sphere
 - **Cost Landscape** - Plot optimization landscapes for QAOA and VQE algorithms
 - **Circuit Diagrams** - Render quantum circuit diagrams as PNG images
 - **Dynamic Flow** - Visualize time evolution and Rabi oscillations
+- **Dimensional Circular Notation (DCN)** - Visualize quantum states with circular notation showing magnitude and phase
 - **Interactive Dashboard** - Web-based interface for quantum state visualization
 - **Hardware Integration** - Run circuits on IBM Quantum hardware (requires Qiskit)
 
@@ -37,35 +38,64 @@ pip install quantumviz[all]
 ### Command Line Interface
 
 ```bash
-# Plot Bloch sphere
+# Plot Bloch sphere (PNG default)
 quantumviz bloch-sphere input.txt -o output.png
 
-# Plot State City
+# Plot Bloch sphere (PDF output)
+quantumviz bloch-sphere input.txt -o output.pdf -f pdf
+
+# Plot State City (multiple PNG files)
 quantumviz state-city input.json -o output/
+
+# Plot State City (multiple PDF files)
+quantumviz state-city input.json -o output/ -f pdf
 
 # Plot circuit diagram
 quantumviz circuit circuit.json -o circuit.png
 
-# Plot QAOA cost landscape (requires input file)
+# Plot circuit diagram (PDF)
+quantumviz circuit circuit.json -o circuit.pdf -f pdf
+
+# Plot QAOA cost landscape
 quantumviz cost-landscape qaoa graph.json -o landscape.png
 
-# Plot VQE energy landscape (requires input file)
+# Plot VQE energy landscape
 quantumviz cost-landscape vqe hamiltonian.json -o energy.png
+
+# Plot DCN visualization (PNG)
+quantumviz dcn input.json -o output.png
+
+# Plot DCN visualization (PDF)
+quantumviz dcn input.json -o output.pdf -f pdf
 
 # Start dashboard
 quantumviz serve
 ```
 
+### Output Format Options
+- Use `-f` or `--format` to specify output format: `png` (default), `pdf`, or `svg`
+- Output path extension is ignored in favor of the `--format` option
+
 ### Python API
 
 ```python
 from quantumviz import plot_bloch_sphere, plot_state_city, state_to_density
+from quantumviz.dcn import plot_dcn
 
-# Bloch sphere
+# Bloch sphere (PNG)
 plot_bloch_sphere("input.txt", "output.png")
 
-# State city
+# Bloch sphere (PDF)
+plot_bloch_sphere("input.txt", "output.pdf")
+
+# State city (PNG)
 plot_state_city([1, 0, 0, 0], "Density Matrix", "output.png")
+
+# State city (PDF)
+plot_state_city([1, 0, 0, 0], "Density Matrix", "output.pdf")
+
+# DCN visualization
+plot_dcn("input.json", "output.png")
 
 # Density matrix
 rho = state_to_density([1/np.sqrt(2), 1/np.sqrt(2)])
@@ -81,7 +111,7 @@ theta=60 deg, phi=45   # Bloch angles
 (x,y,z)               # Cartesian coordinates
 ```
 
-### State City / Circuit / Dynamic Flow (JSON)
+### State City / Circuit / Dynamic Flow / DCN (JSON)
 
 ```json
 {
@@ -91,6 +121,10 @@ theta=60 deg, phi=45   # Bloch angles
   ]
 }
 ```
+
+DCN visualization supports 1-3 qubit systems:
+- **1-2 qubits**: 2D grid layout with inner circles showing magnitude and phase
+- **3 qubits**: 3D visualization with x=qubit0, y=qubit2 (depth), z=qubit1
 
 ### QAOA Cost Landscape (JSON)
 
@@ -124,11 +158,13 @@ Each term has:
 
 ### Example Files
 
-See the `examples/` directory for complete input file examples:
-- `examples/qaoa_maxcut_2qubit.json` - Simple 2-qubit graph
-- `examples/qaoa_maxcut_triangle.json` - Triangle graph
-- `examples/vqe_h2.json` - H2 molecule Hamiltonian
-- `examples/vqe_lih.json` - LiH molecule Hamiltonian
+See the `examples/algs/` directory for complete input file examples:
+- `examples/algs/bloch_sphere/` - Single-qubit state examples
+- `examples/algs/state_city/` - Multi-qubit density matrix examples
+- `examples/algs/circuit_diagram/` - Quantum circuit examples
+- `examples/algs/cost_landscape/inputs/` - QAOA and VQE examples
+- `examples/algs/dcn/` - DCN visualization examples (Bell, GHZ, W states)
+- `examples/algs/dynamic_flow/` - Time evolution examples
 
 ## Development
 
@@ -137,21 +173,24 @@ See the `examples/` directory for complete input file examples:
 ```bash
 git clone https://github.com/viveksoorya/quantumviz.git
 cd quantumviz
-pip install -e ".[dev,all]"
+pip install -e ".[dev]"        # Dev deps (pytest, ruff, mypy)
+pip install -e ".[dashboard]"  # + FastAPI, uvicorn, pydantic
+pip install -e ".[all]"        # + qiskit, qiskit-ibm-runtime
 ```
 
 ### Run Tests
 
 ```bash
-pytest
-pytest --cov=quantumviz --cov-report=html
+pytest tests/ --cov=quantumviz    # All tests with coverage
+pytest tests/test_dcn.py -v      # Single file (verbose)
+pytest -k "pattern"              # Match pattern
 ```
 
 ### Code Quality
 
 ```bash
-ruff check .
-mypy .
+ruff check src/    # Ruff config in pyproject.toml
+mypy src/          # Python 3.9 target
 ```
 
 ## Requirements

@@ -12,6 +12,7 @@ from quantumviz.cli import (
     bloch_sphere,
     circuit,
     cost_landscape,
+    dcn,
     dynamic_flow,
     main,
     serve,
@@ -71,6 +72,35 @@ class TestBlochSphereCLI:
             assert result.exit_code == 0
             assert os.path.exists(output_file)
 
+    def test_bloch_sphere_pdf_output(self):
+        """Test bloch-sphere with PDF output."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "test.txt")
+            with open(input_file, 'w') as f:
+                f.write("|0>\n|1>")
+
+            output_file = os.path.join(tmpdir, "output.pdf")
+            runner = CliRunner()
+            result = runner.invoke(bloch_sphere, [input_file, '-o', output_file])
+            assert result.exit_code == 0
+            assert os.path.exists(output_file)
+            # Verify it's actually a PDF
+            with open(output_file, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
+    def test_bloch_sphere_format_option(self):
+        """Test bloch-sphere with --format option."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "test.txt")
+            with open(input_file, 'w') as f:
+                f.write("|0>")
+
+            output_file = os.path.join(tmpdir, "output.pdf")
+            runner = CliRunner()
+            result = runner.invoke(bloch_sphere, [input_file, '-o', output_file, '-f', 'pdf'])
+            assert result.exit_code == 0
+            assert os.path.exists(output_file)
+
 
 class TestStateCityCLI:
     """Tests for state-city CLI command."""
@@ -104,6 +134,31 @@ class TestStateCityCLI:
             runner = CliRunner()
             result = runner.invoke(state_city, [input_file])
             assert result.exit_code == 0
+
+    def test_state_city_pdf_output(self):
+        """Test state-city with PDF output."""
+        data = {
+            "qubits": 1,
+            "stages": [
+                {"name": "Zero", "state_vector": [1, 0]}
+            ]
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "test.json")
+            with open(input_file, 'w') as f:
+                json.dump(data, f)
+
+            output_dir = os.path.join(tmpdir, "output")
+            runner = CliRunner()
+            result = runner.invoke(state_city, [input_file, '-o', output_dir, '-f', 'pdf'])
+            assert result.exit_code == 0
+            # Check that PDF files were created
+            import glob
+            pdf_files = glob.glob(os.path.join(output_dir, "*.pdf"))
+            assert len(pdf_files) > 0
+            # Verify it's actually a PDF
+            with open(pdf_files[0], 'rb') as f:
+                assert f.read(4) == b'%PDF'
 
 
 class TestCostLandscapeCLI:
@@ -140,6 +195,36 @@ class TestCostLandscapeCLI:
             result = runner.invoke(cost_landscape, ['vqe', input_file, '-o', output_file])
             assert result.exit_code == 0
             assert os.path.exists(output_file)
+
+    def test_cost_landscape_qaoa_pdf(self):
+        """Test cost-landscape qaoa with PDF output."""
+        data = {"edges": [[0, 1], [1, 2]]}
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "qaoa.json")
+            with open(input_file, 'w') as f:
+                json.dump(data, f)
+            output_file = os.path.join(tmpdir, "qaoa.pdf")
+            runner = CliRunner()
+            result = runner.invoke(cost_landscape, ['qaoa', input_file, '-o', output_file])
+            assert result.exit_code == 0
+            assert os.path.exists(output_file)
+            with open(output_file, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
+    def test_cost_landscape_vqe_pdf(self):
+        """Test cost-landscape vqe with PDF output."""
+        data = {"terms": [{"coeff": 0.5, "paulis": ["Z"]}]}
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "vqe.json")
+            with open(input_file, 'w') as f:
+                json.dump(data, f)
+            output_file = os.path.join(tmpdir, "vqe.pdf")
+            runner = CliRunner()
+            result = runner.invoke(cost_landscape, ['vqe', input_file, '-o', output_file])
+            assert result.exit_code == 0
+            assert os.path.exists(output_file)
+            with open(output_file, 'rb') as f:
+                assert f.read(4) == b'%PDF'
 
     def test_cost_landscape_invalid_algorithm(self):
         """Test cost-landscape with invalid algorithm."""
@@ -184,6 +269,28 @@ class TestCircuitCLI:
             assert result.exit_code == 0
             assert os.path.exists(output_file)
 
+    def test_circuit_pdf_output(self):
+        """Test circuit with PDF output."""
+        data = {
+            "qubits": 2,
+            "gates": [
+                {"type": "H", "qubit": 0},
+                {"type": "CNOT", "control": 0, "target": 1}
+            ]
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "circuit.json")
+            with open(input_file, 'w') as f:
+                json.dump(data, f)
+
+            output_file = os.path.join(tmpdir, "circuit.pdf")
+            runner = CliRunner()
+            result = runner.invoke(circuit, [input_file, '-o', output_file])
+            assert result.exit_code == 0
+            assert os.path.exists(output_file)
+            with open(output_file, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
 
 class TestDynamicFlowCLI:
     """Tests for dynamic-flow CLI command."""
@@ -219,6 +326,84 @@ class TestDynamicFlowCLI:
             result = runner.invoke(dynamic_flow, [input_file, '-o', output_file])
             assert result.exit_code == 0
             assert os.path.exists(output_file)
+
+    def test_dynamic_flow_pdf_output(self):
+        """Test dynamic-flow with PDF output."""
+        data = {
+            "qubits": 1,
+            "stages": [
+                {"name": "t=0", "state_vector": [1, 0]}
+            ]
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "test.json")
+            with open(input_file, 'w') as f:
+                json.dump(data, f)
+
+            output_file = os.path.join(tmpdir, "output.pdf")
+            runner = CliRunner()
+            result = runner.invoke(dynamic_flow, [input_file, '-o', output_file])
+            assert result.exit_code == 0
+            assert os.path.exists(output_file)
+            with open(output_file, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
+
+class TestDCNCLI:
+    """Tests for dcn CLI command."""
+
+    def test_dcn_help(self):
+        """Test dcn help."""
+        runner = CliRunner()
+        result = runner.invoke(dcn, ['--help'])
+        assert result.exit_code == 0
+
+    def test_dcn_missing_input(self):
+        """Test dcn with missing input."""
+        runner = CliRunner()
+        result = runner.invoke(dcn)
+        assert result.exit_code != 0
+
+    def test_dcn_valid_input(self):
+        """Test dcn with valid input."""
+        data = {
+            "stages": [
+                {"name": "Zero", "state_vector": [1, 0, 0, 0]},
+                {"name": "One", "state_vector": [0, 1, 0, 0]}
+            ]
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "test.json")
+            with open(input_file, 'w') as f:
+                json.dump(data, f)
+
+            output_dir = os.path.join(tmpdir, "output")
+            runner = CliRunner()
+            result = runner.invoke(dcn, [input_file, '-o', output_dir])
+            assert result.exit_code == 0
+
+    def test_dcn_pdf_output(self):
+        """Test dcn with PDF output."""
+        data = {
+            "stages": [
+                {"name": "Zero", "state_vector": [1, 0, 0, 0]}
+            ]
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, "test.json")
+            with open(input_file, 'w') as f:
+                json.dump(data, f)
+
+            output_dir = os.path.join(tmpdir, "output")
+            runner = CliRunner()
+            result = runner.invoke(dcn, [input_file, '-o', output_dir, '-f', 'pdf'])
+            assert result.exit_code == 0
+            import glob
+            pdf_pattern = os.path.join(output_dir, "*.pdf")
+            pdf_files = glob.glob(pdf_pattern)
+            assert len(pdf_files) > 0
+            with open(pdf_files[0], 'rb') as f:
+                assert f.read(4) == b'%PDF'
 
 
 class TestServeCLI:

@@ -130,6 +130,15 @@ class TestQAOALandscape:
             plot_qaoa_landscape(SIMPLE_GRAPH_EDGES, output_path=output_path)
             assert os.path.exists(output_path)
 
+    def test_plot_saves_to_pdf(self):
+        """Test plotting saves to PDF file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "qaoa.pdf")
+            plot_qaoa_landscape(SIMPLE_GRAPH_EDGES, output_path=output_path)
+            assert os.path.exists(output_path)
+            with open(output_path, 'rb') as f:
+                assert f.read(4) == b'%PDF'
+
     def test_plot_custom_resolution(self):
         """Test plotting with custom resolution."""
         fig = plot_qaoa_landscape(SIMPLE_GRAPH_EDGES, resolution=25)
@@ -175,6 +184,15 @@ class TestVQELandscape:
             output_path = os.path.join(tmpdir, "vqe.png")
             plot_vqe_landscape(H2_TERMS, output_path=output_path)
             assert os.path.exists(output_path)
+
+    def test_plot_saves_to_pdf(self):
+        """Test plotting saves to PDF file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "vqe.pdf")
+            plot_vqe_landscape(H2_TERMS, output_path=output_path)
+            assert os.path.exists(output_path)
+            with open(output_path, 'rb') as f:
+                assert f.read(4) == b'%PDF'
 
     def test_plot_custom_resolution(self):
         """Test plotting with custom resolution."""
