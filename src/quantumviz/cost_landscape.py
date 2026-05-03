@@ -244,8 +244,8 @@ def plot_qaoa_landscape(
     """
     gammas = np.linspace(float(gamma_range[0]), float(gamma_range[1]), resolution)
     betas = np.linspace(float(beta_range[0]), float(beta_range[1]), resolution)
-    G, B = np.meshgrid(gammas, betas)
-    Z = qaoa_cost(G, B, edges)
+    G, B = np.meshgrid(gammas, betas)  # noqa: N806
+    Z = qaoa_cost(G, B, edges)  # noqa: N806
 
     plt.figure(figsize=(10, 8))
     contour = plt.contourf(G, B, Z, levels=20, cmap='viridis')

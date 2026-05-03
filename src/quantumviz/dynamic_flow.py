@@ -113,7 +113,6 @@ def plot_rabi_oscillation(
         matplotlib Figure object if output_path is None, else None
     """
     times = np.linspace(0, t_max, n_points)
-    theta = omega * times
 
     trajectory = []
     for t in times:
