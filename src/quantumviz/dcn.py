@@ -123,7 +123,7 @@ def plot_dcn(
     fig_size = 8 if n_qubits == 3 else 4
     fig, ax = plt.subplots(figsize=(fig_size, fig_size))
 
-    fig.suptitle(title, fontsize=12, y=0.95)
+    fig.suptitle(title, fontsize=12, y=0.98)
 
     # Circle radius (outer circle)
     circle_r = 1.0
@@ -160,45 +160,43 @@ def plot_dcn(
 
             positions[i] = (x_pos, y_pos, q1, q2, q3)
 
-            if magnitude < 0.01:
-                continue
-
             # Determine if front or back face
             is_back_face = (q3 == 1)
 
-            # Outer circle - use matplotlib.patches.Circle
+            # Outer circle - always draw
             outer_circle = MplCircle((x_pos, y_pos), circle_r, fill=False,
                                      color='black', linewidth=1.5,
                                      linestyle='--' if is_back_face else '-',
                                      alpha=0.6 if is_back_face else 1.0)
             ax.add_patch(outer_circle)
 
-            # Inner circle (filled) - radius proportional to magnitude
-            inner_r = circle_r * magnitude
-            if inner_r > 0.01:
-                # Color based on Q3 (front/back face): blue for Q3=0, green for Q3=1 (matches TikZ)
-                inner_color = 'skyblue' if q3 == 0 else 'lightgreen'
-                inner_circle = MplCircle((x_pos, y_pos), inner_r, fill=True,
-                                         color=inner_color, linewidth=0, alpha=0.7)
-                ax.add_patch(inner_circle)
+            # Basis state label - always draw
+            basis_label = format(i, f'0{n_qubits}b')
+            ax.text(x_pos, y_pos - circle_r - 0.1, f'|{basis_label}⟩',
+                   ha='center', va='top', fontsize=8, fontweight='bold',
+                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
 
-            # Phase line (direction = phase angle)
+            # Only draw amplitude-dependent elements for non-zero states
             if magnitude >= 0.01:
+                # Inner circle (filled) - radius proportional to magnitude
+                inner_r = circle_r * magnitude
+                if inner_r > 0.01:
+                    # Color based on Q3 (front/back face): blue for Q3=0, green for Q3=1 (matches TikZ)
+                    inner_color = 'skyblue' if q3 == 0 else 'lightgreen'
+                    inner_circle = MplCircle((x_pos, y_pos), inner_r, fill=True,
+                                             color=inner_color, linewidth=0, alpha=0.7)
+                    ax.add_patch(inner_circle)
+
+                # Phase line (direction = phase angle)
                 endpoint_x = x_pos + circle_r * np.cos(phase)
                 endpoint_y = y_pos + circle_r * np.sin(phase)
                 ax.plot([x_pos, endpoint_x], [y_pos, endpoint_y],
                        color='black', linewidth=2.5,
                        alpha=0.6 if is_back_face else 1.0)
 
-            # Center dot
-            ax.plot(x_pos, y_pos, 'ko', markersize=3,
-                   alpha=0.6 if is_back_face else 1.0)
-
-            # Basis state label (below circle)
-            basis_label = format(i, f'0{n_qubits}b')
-            ax.text(x_pos, y_pos - circle_r - 0.1, f'|{basis_label}⟩',
-                   ha='center', va='top', fontsize=8, fontweight='bold',
-                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
+                # Center dot
+                ax.plot(x_pos, y_pos, 'ko', markersize=3,
+                       alpha=0.6 if is_back_face else 1.0)
 
         else:
             if n_qubits == 1:
@@ -256,8 +254,8 @@ def plot_dcn(
         circle_r = 1.0 * scale  # Circle radius
 
         # Origin point (top-left, where all axes start)
-        # TikZ origin: (-1.0, \ay+1.0) = (-1.0, 4.0)
-        origin_x = -1.0 * scale
+        # TikZ origin: (-3.0, \ay+1.0) = (-3.0, 4.0) (all axes start here)
+        origin_x = -3.0 * scale
         origin_y = (ay_dim/scale + 1.0) * scale  # = (3.0 + 1.0) * scale = 4.0 * scale
 
         # Helper: get point on circle circumference toward target
@@ -275,11 +273,13 @@ def plot_dcn(
         # Draw separability plane for Q1 (green parallelogram midway between Q1=0 and Q1=1)
         if separable_q1:
             plane_x_mid = ax_dim / 2  # Midway between Q1=0 (x=0) and Q1=1 (x=ax_dim)
+            # Use consistent scaling for all coordinates
+            margin_small = 0.3 * scale
             plane_pts = [
-                (plane_x_mid, -0.3),
-                (plane_x_mid, ay_dim + 0.3),
-                (plane_x_mid + sx, ay_dim + sy + 0.3),
-                (plane_x_mid + sx, sy - 0.3)
+                (plane_x_mid, -margin_small),
+                (plane_x_mid, ay_dim + margin_small),
+                (plane_x_mid + sx, ay_dim + sy + margin_small),
+                (plane_x_mid + sx, sy - margin_small)
             ]
             plane_pts.append(plane_pts[0])  # Close polygon
             px_vals = [p[0] for p in plane_pts]
@@ -315,66 +315,80 @@ def plot_dcn(
                 ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 'k-', linewidth=1.0, alpha=0.8)
 
         # Draw axis labels (matching TikZ exactly)
-        # TikZ coordinates (scaled): origin (-1.0, 4.0), Q1 ends at (6.0, 4.0)
-        q1_end_x = 6.0 * scale
+        # TikZ: Q1 from (-3.0, 4.0) to (-0.5, 4.0)
+        q1_end_x = -0.5 * scale
         q1_end_y = origin_y
         ax.annotate('', xy=(q1_end_x, q1_end_y), xytext=(origin_x, origin_y),
                    arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
         ax.text((origin_x + q1_end_x) / 2, origin_y + 0.15,
                '$Q_1$', ha='center', va='bottom', fontsize=10)
 
-        # Q2 axis (vertical, top to bottom) from origin
-        # TikZ: from (-1.0, 4.0) to (-1.0, -0.5)
+        # Q2 axis (vertical, down) from origin
+        # TikZ: from (-3.0, 4.0) to (-3.0, 1.5)
         q2_end_x = origin_x
-        q2_end_y = -0.5 * scale
+        q2_end_y = (ay_dim/scale - 1.5) * scale  # = (3.0 - 1.5) * scale = 1.5 * scale
         ax.annotate('', xy=(q2_end_x, q2_end_y), xytext=(origin_x, origin_y),
                    arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
         ax.text(origin_x - 0.3, (origin_y + q2_end_y) / 2,
                '$Q_2$', ha='right', va='center', fontsize=10)
 
-        # Q3 axis (diagonal UP and RIGHT from origin - "behind" the plane)
-        # TikZ: (-1.0, 4.0) -> (2.75, 6.0)
-        q3_end_x = 2.75 * scale
-        q3_end_y = 6.0 * scale
+        # Q3 axis (diagonal up-right from origin)
+        # TikZ: from (-3.0, 4.0) to (-0.75, 5.5)  [(\ax/2 - 3.5, \sy+\ay+0.5)]
+        q3_end_x = (ax_dim/scale/2 - 3.5) * scale  # = (2.75 - 3.5) * scale = -0.75 * scale
+        q3_end_y = (sy/scale + ay_dim/scale + 0.5) * scale  # = (2.0 + 3.0 + 0.5) * scale = 5.5 * scale
         ax.annotate('', xy=(q3_end_x, q3_end_y), xytext=(origin_x, origin_y),
                    arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
         ax.text((origin_x + q3_end_x) / 2 - 0.1, (origin_y + q3_end_y) / 2 + 0.1,
                '$Q_3$', ha='center', va='bottom', fontsize=10)
 
         # Set axis limits to show full TikZ figure with margins
-        # TikZ bounds: x from -1.0 to ax+0.5+sx = 8.5, y from -0.5 to sy+ay+1.0 = 6.0
-        left = -1.0 * scale - 0.3 * scale
-        right = (5.5 + 0.5 + 2.5) * scale + 0.3 * scale  # = 8.5 * scale + margin
-        bottom = -0.5 * scale - 0.3 * scale
-        top = (6.0) * scale + 0.3 * scale  # sy+ay+1.0 = 6.0
+        # Account for: circle radii, labels (extends ~0.2 beyond circles), axes
+        margin = 0.5 * scale  # Generous margin for labels and axes
+        # Left: origin_x for Q2 axis, minus label space
+        left = min(origin_x, origin_x - 0.3) - margin
+        # Rightmost: back face Q1=1 at (ax_dim+sx), plus circle radius
+        right = ax_dim + sx + circle_r + margin
+        # Bottom: front face at y=0, minus circle radius and label space
+        bottom = -circle_r - 0.2 - margin
+        # Top: back face circles at y=sy+ay_dim, plus circle radius and label
+        top = sy + ay_dim + circle_r + 0.2 + margin
         ax.set_xlim(left, right)
         ax.set_ylim(bottom, top)
         ax.set_aspect('equal')
         ax.axis('off')
     else:
-        dim = 2 ** n_qubits
         margin = 0.3
-        ax.set_xlim(0.5 - circle_r - margin, dim - 0.5 + circle_r + margin)
-        ax.set_ylim(0.5 - circle_r - margin, dim - 0.5 + circle_r + margin)
+        # Calculate axis limits based on actual circle positions
+        if n_qubits == 1:
+            # 1D grid: x = 0.6 + i*2.2 for i in [0,1], y = 1.2
+            x_min = 0.6 - circle_r - margin
+            x_max = 0.6 + 1*2.2 + circle_r + margin
+            y_min = 1.2 - circle_r - margin
+            y_max = 1.2 + circle_r + margin
+        else:
+            # 2D grid: x = 1.0 + x*2.2, y = 0.5 + y*2.6
+            # Increase margin to 0.6 to accommodate labels at x_min-0.5 and y_max+0.5
+            margin = 0.6
+            x_min = 1.0 - circle_r - margin
+            x_max = 1.0 + 1*2.2 + circle_r + margin
+            y_min = 0.5 - circle_r - margin
+            y_max = 0.5 + 1*2.6 + circle_r + margin
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(y_min, y_max)
         ax.set_xticks([])
         ax.set_yticks([])
 
         if n_qubits > 1:
-            y_min = 0.5 - circle_r
-            y_max = dim - 0.5 + circle_r
-            x_min = 0.5 - circle_r
-            x_max = dim - 0.5 + circle_r
-
-            ax.plot([y_min, y_min], [y_min, y_max], 'k-', linewidth=1.5)
-            ax.annotate('', xy=(y_min, y_max), xytext=(y_min, y_max - 0.2),
+            ax.plot([x_min, x_min], [y_min, y_max], 'k-', linewidth=1.5)
+            ax.annotate('', xy=(x_min, y_max), xytext=(x_min, y_max - 0.2),
                        arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
-            ax.text(y_min - 0.15, (y_min + y_max) / 2, '2nd Qubit',
+            ax.text(x_min - 0.5, (y_min + y_max) / 2, '2nd Qubit',
                    ha='center', va='center', fontsize=9, rotation=90)
 
             ax.plot([x_min, x_max], [y_max, y_max], 'k-', linewidth=1.5)
             ax.annotate('', xy=(x_max, y_max), xytext=(x_max - 0.2, y_max),
                       arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
-            ax.text((x_min + x_max) / 2, y_max + 0.15, '1st Qubit',
+            ax.text((x_min + x_max) / 2, y_max + 0.5, '1st Qubit',
                    ha='center', va='bottom', fontsize=9)
 
         ax.set_aspect('equal')
@@ -383,10 +397,9 @@ def plot_dcn(
         ax.spines['bottom'].set_visible(False)
         ax.spines['left'].set_visible(False)
 
-    # bbox_inches='tight' in savefig handles the layout
-
+    # Respect axis limits set above (bbox_inches='tight' would ignore them)
     if output_path:
-        plt.savefig(output_path, dpi=dpi, bbox_inches='tight')
+        plt.savefig(output_path, dpi=dpi)
         plt.close()
         return None
 

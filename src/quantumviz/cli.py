@@ -37,7 +37,7 @@ def _output_path(input_file: str, suffix: str, fmt: str, output_arg: Optional[st
 
 
 @click.group()
-@click.version_option(version="0.1.0")
+@click.version_option(version="0.3.0")
 def main():
     """quantumviz - Quantum Algorithm Visualization Library"""
     pass
@@ -57,7 +57,8 @@ def bloch_sphere(input_file, output_file, fmt, dpi):
         try:
             from qiskit import QuantumCircuit
             from qiskit.quantum_info import Statevector
-            qc = QuantumCircuit.from_qpy(input_file)
+            circuits = QuantumCircuit.from_qpy(input_file)
+            qc = circuits[0] if circuits else None
             sv = Statevector.from_circuit(qc)
             _plot_bloch_sphere([sv], output_file, dpi)
         except ImportError:
@@ -81,7 +82,8 @@ def state_city(input_file, output_dir, fmt, dpi):
         try:
             from qiskit import QuantumCircuit
             from qiskit.quantum_info import Statevector
-            qc = QuantumCircuit.from_qpy(input_file)
+            circuits = QuantumCircuit.from_qpy(input_file)
+            qc = circuits[0] if circuits else None
             sv = Statevector.from_circuit(qc)
             if output_dir:
                 output_file = f"{output_dir}/state_city.{fmt}"
@@ -161,7 +163,8 @@ def circuit(input_file, output_file, fmt, dpi):
     if input_file.endswith('.qpy'):
         try:
             from qiskit import QuantumCircuit
-            qc = QuantumCircuit.from_qpy(input_file)
+            circuits = QuantumCircuit.from_qpy(input_file)
+            qc = circuits[0] if circuits else None
             _draw_circuit(qc, output_file, dpi)
         except ImportError:
             click.echo("Error: Qiskit not installed. Install with: pip install qiskit", err=True)
@@ -189,7 +192,8 @@ def dynamic_flow(input_file, output_file, fmt, dpi):
         try:
             from qiskit import QuantumCircuit
             from qiskit.quantum_info import Statevector
-            qc = QuantumCircuit.from_qpy(input_file)
+            circuits = QuantumCircuit.from_qpy(input_file)
+            qc = circuits[0] if circuits else None
             sv = Statevector.from_circuit(qc)
             from quantumviz.dynamic_flow import plot_time_evolution
             plot_time_evolution([sv], "Time Evolution", output_file, dpi)
@@ -223,7 +227,8 @@ def dcn(input_file, output_file, fmt, dpi):
         try:
             from qiskit import QuantumCircuit
             from qiskit.quantum_info import Statevector
-            qc = QuantumCircuit.from_qpy(input_file)
+            circuits = QuantumCircuit.from_qpy(input_file)
+            qc = circuits[0] if circuits else None
             sv = Statevector.from_circuit(qc)
             from quantumviz.dcn import plot_dcn
             plot_dcn(sv, "DCN Visualization", output_file, dpi)
@@ -237,8 +242,16 @@ def dcn(input_file, output_file, fmt, dpi):
             _plot_dcn(input_file, output_file, dpi, fmt)
         else:
             # Single stage - determine if output is file or directory
-            if output_file and output_file.endswith('/'):
-                # Treat as directory
+            # Check if output_file is a directory (ends with /, is existing dir, or has no file extension)
+            is_dir = output_file and (
+                output_file.endswith('/') or
+                os.path.isdir(output_file) or
+                not os.path.splitext(output_file)[1]  # No file extension
+            )
+            if is_dir:
+                # Treat as directory - ensure it exists
+                if output_file and not os.path.exists(output_file):
+                    os.makedirs(output_file, exist_ok=True)
                 _plot_dcn(input_file, output_file, dpi, fmt)
             else:
                 # Treat as file - extract filename and call plot_dcn directly
@@ -271,6 +284,30 @@ def serve(host, port):
     except ImportError:
         click.echo("Error: Dashboard dependencies not installed.", err=True)
         click.echo("Install with: pip install quantumviz[dashboard]", err=True)
+        sys.exit(1)
+
+
+@main.command()
+def gui():
+    """Launch the quantumviz desktop GUI application."""
+    try:
+        import sys
+
+        from PyQt6.QtWidgets import QApplication
+
+        from quantumviz.gui import QuantumVizGUI
+
+        app = QApplication(sys.argv)
+        app.setApplicationName("QuantumViz")
+        app.setApplicationVersion("0.3.0")
+
+        window = QuantumVizGUI()
+        window.show()
+
+        sys.exit(app.exec())
+    except ImportError:
+        click.echo("Error: GUI dependencies not installed.", err=True)
+        click.echo("Install with: pip install quantumviz[gui]", err=True)
         sys.exit(1)
 
 
